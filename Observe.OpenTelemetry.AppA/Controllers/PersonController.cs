@@ -10,7 +10,7 @@ namespace Observe.OpenTelemetry.AppA.Controllers
         {
             _httpClient = clientFactory.CreateClient("ApiB");
         }
-        [HttpGet("GetAll")]
+        [HttpGet("GetAllB")]
         public async Task<IActionResult> GetAll()
         {
             var result =await _httpClient.GetStringAsync("GetAllA");
