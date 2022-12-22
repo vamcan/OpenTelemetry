@@ -1,3 +1,5 @@
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Serilog;
 using Serilog.Enrichers.Span;
 using Serilog.Sinks.Elasticsearch;
@@ -19,7 +21,23 @@ try
                 AutoRegisterTemplate = true,
                 IndexFormat = "Sample-ApiA-{0:yyyy.MM}",
                 AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7
-            }).Enrich.WithSpan(); 
+            }).Enrich.WithSpan();
+    });
+    var serviceName = "Samples.ApiA";
+    var serviceVersion = "1.0.0";
+    builder.Services.AddOpenTelemetryTracing(traceProviderBuilder =>
+    {
+        traceProviderBuilder
+            .AddConsoleExporter()
+            .AddJaegerExporter()
+            .AddSource(serviceName)
+            .SetResourceBuilder(
+                ResourceBuilder.CreateDefault()
+                    .AddService(serviceName: serviceName, serviceVersion: serviceVersion)
+            )
+            .AddHttpClientInstrumentation()
+            .AddAspNetCoreInstrumentation()
+            .AddSqlClientInstrumentation();
     });
     builder.Services.AddHttpClient("ApiB", c => c.BaseAddress = new Uri("https://localhost:7104/"));
     builder.Services.AddControllers();

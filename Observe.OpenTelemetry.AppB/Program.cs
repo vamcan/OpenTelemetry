@@ -1,4 +1,6 @@
 using Observe.OpenTelemetry.AppB.Model;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Serilog;
 using Serilog.Enrichers.Span;
 using Serilog.Sinks.Elasticsearch;
@@ -21,7 +23,22 @@ try
                 AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7
             }).Enrich.WithSpan(); ;
     });
-
+    var serviceName = "Samples.ApiB ";
+    var serviceVersion = "1.0.0";
+    builder.Services.AddOpenTelemetryTracing(traceProviderBuilder =>
+    {
+        traceProviderBuilder
+            .AddConsoleExporter()
+            .AddJaegerExporter()
+            .AddSource(serviceName)
+            .SetResourceBuilder(
+                ResourceBuilder.CreateDefault()
+                    .AddService(serviceName: serviceName, serviceVersion: serviceVersion)
+            )
+            .AddHttpClientInstrumentation()
+            .AddAspNetCoreInstrumentation()
+            .AddSqlClientInstrumentation();
+    });
     // Add services to the container.
     builder.Services.AddDbContext<PersonDbContext>();
     builder.Services.AddScoped<PersonRepo>();
