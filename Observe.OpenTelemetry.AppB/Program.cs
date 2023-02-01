@@ -19,8 +19,12 @@ try
             .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
             {
                 AutoRegisterTemplate = true,
+                OverwriteTemplate = true,
+                TemplateName = "Samples.ApiB",
+                AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7,
+                TypeName = null,
+                BatchAction = ElasticOpType.Create,
                 IndexFormat = "Sample-ApiB-{0:yyyy.MM}",
-                AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7
             }).Enrich.WithSpan(); ;
     });
     var serviceName = "Samples.ApiB ";
